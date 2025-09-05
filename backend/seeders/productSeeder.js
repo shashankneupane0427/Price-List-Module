@@ -1,0 +1,246 @@
+import sequelize from '../db.js';
+import Product from '../models/Product.js';
+
+const sampleProducts = [
+  {
+    article_no: "1234567890",
+    product_service: "This is a test product with fifty characters this!",
+    in_price: 900500,
+    price: 1500800,
+    unit: "kilometers/hour",
+    in_stock: 2500600,
+    description: "This is the description with fifty characters this..."
+  },
+  {
+    article_no: "2345678901",
+    product_service: "Professional Camera Equipment Set",
+    in_price: 45000,
+    price: 75000,
+    unit: "pieces",
+    in_stock: 15,
+    description: "High-quality camera equipment for professional photography"
+  },
+  {
+    article_no: "3456789012",
+    product_service: "Laptop Computer Dell XPS 13",
+    in_price: 12000,
+    price: 18000,
+    unit: "pieces",
+    in_stock: 8,
+    description: "Premium ultrabook with Intel i7 processor"
+  },
+  {
+    article_no: "4567890123",
+    product_service: "Office Chair Ergonomic Design",
+    in_price: 2500,
+    price: 4200,
+    unit: "pieces",
+    in_stock: 25,
+    description: "Comfortable ergonomic office chair with lumbar support"
+  },
+  {
+    article_no: "5678901234",
+    product_service: "Wireless Bluetooth Headphones",
+    in_price: 800,
+    price: 1500,
+    unit: "pieces",
+    in_stock: 50,
+    description: "High-quality wireless headphones with noise cancellation"
+  },
+  {
+    article_no: "6789012345",
+    product_service: "Standing Desk Adjustable Height",
+    in_price: 3500,
+    price: 5800,
+    unit: "pieces",
+    in_stock: 12,
+    description: "Electric height-adjustable standing desk"
+  },
+  {
+    article_no: "7890123456",
+    product_service: "Monitor 27 inch 4K Display",
+    in_price: 4000,
+    price: 6500,
+    unit: "pieces",
+    in_stock: 18,
+    description: "Ultra HD 4K monitor with USB-C connectivity"
+  },
+  {
+    article_no: "8901234567",
+    product_service: "Mechanical Keyboard RGB Backlit",
+    in_price: 1200,
+    price: 2000,
+    unit: "pieces",
+    in_stock: 30,
+    description: "Gaming mechanical keyboard with RGB lighting"
+  },
+  {
+    article_no: "9012345678",
+    product_service: "Wireless Mouse Precision Gaming",
+    in_price: 600,
+    price: 1100,
+    unit: "pieces",
+    in_stock: 40,
+    description: "High-precision wireless gaming mouse"
+  },
+  {
+    article_no: "0123456789",
+    product_service: "Tablet iPad Pro 12.9 inch",
+    in_price: 8000,
+    price: 12000,
+    unit: "pieces",
+    in_stock: 6,
+    description: "Professional tablet with Apple Pencil support"
+  },
+  {
+    article_no: "1357924680",
+    product_service: "Smartphone Samsung Galaxy S23",
+    in_price: 7000,
+    price: 10500,
+    unit: "pieces",
+    in_stock: 20,
+    description: "Latest Android smartphone with advanced camera"
+  },
+  {
+    article_no: "2468013579",
+    product_service: "Printer Laser Color Multifunction",
+    in_price: 3000,
+    price: 4800,
+    unit: "pieces",
+    in_stock: 10,
+    description: "All-in-one color laser printer with WiFi"
+  },
+  {
+    article_no: "3691472580",
+    product_service: "External Hard Drive 2TB USB 3.0",
+    in_price: 800,
+    price: 1300,
+    unit: "pieces",
+    in_stock: 35,
+    description: "Portable external storage device"
+  },
+  {
+    article_no: "4815926370",
+    product_service: "Webcam HD 1080p with Microphone",
+    in_price: 400,
+    price: 750,
+    unit: "pieces",
+    in_stock: 45,
+    description: "High-definition webcam for video conferencing"
+  },
+  {
+    article_no: "5927384610",
+    product_service: "Desk Lamp LED Adjustable Brightness",
+    in_price: 300,
+    price: 550,
+    unit: "pieces",
+    in_stock: 60,
+    description: "Energy-efficient LED desk lamp"
+  },
+  {
+    article_no: "6048271593",
+    product_service: "Power Bank 20000mAh Fast Charging",
+    in_price: 250,
+    price: 450,
+    unit: "pieces",
+    in_stock: 80,
+    description: "High-capacity portable charger"
+  },
+  {
+    article_no: "7159382640",
+    product_service: "USB-C Hub Multi-port Adapter",
+    in_price: 200,
+    price: 380,
+    unit: "pieces",
+    in_stock: 70,
+    description: "Multi-port USB-C hub with HDMI output"
+  },
+  {
+    article_no: "8260493751",
+    product_service: "Wireless Charger Qi Compatible",
+    in_price: 150,
+    price: 280,
+    unit: "pieces",
+    in_stock: 90,
+    description: "Fast wireless charging pad"
+  },
+  {
+    article_no: "9371504862",
+    product_service: "Cable Management Organizer Set",
+    in_price: 100,
+    price: 200,
+    unit: "sets",
+    in_stock: 100,
+    description: "Complete cable management solution"
+  },
+  {
+    article_no: "0482615973",
+    product_service: "Ergonomic Wrist Rest Keyboard Pad",
+    in_price: 80,
+    price: 150,
+    unit: "pieces",
+    in_stock: 120,
+    description: "Memory foam wrist support pad"
+  },
+  {
+    article_no: "1593726084",
+    product_service: "Bluetooth Speaker Portable Waterproof",
+    in_price: 500,
+    price: 850,
+    unit: "pieces",
+    in_stock: 25,
+    description: "Waterproof portable Bluetooth speaker"
+  },
+  {
+    article_no: "2604837195",
+    product_service: "Smart Watch Fitness Tracker",
+    in_price: 1500,
+    price: 2500,
+    unit: "pieces",
+    in_stock: 15,
+    description: "Advanced fitness tracking smartwatch"
+  }
+];
+
+const seedProducts = async () => {
+  try {
+    console.log('Starting database seeding...');
+    
+    // Connect to database
+    await sequelize.authenticate();
+    console.log('Database connection established.');
+    
+    // Sync models
+    await sequelize.sync({ alter: false });
+    console.log('Database models synchronized.');
+    
+    // Clear existing products (optional - remove this line if you want to keep existing data)
+    await Product.destroy({ where: {} });
+    console.log('Cleared existing products.');
+    
+    // Insert sample products
+    const createdProducts = await Product.bulkCreate(sampleProducts, {
+      validate: true,
+      returning: true
+    });
+    
+    console.log(`Successfully seeded ${createdProducts.length} products!`);
+    
+    // Display some stats
+    const totalProducts = await Product.count();
+    console.log(`Total products in database: ${totalProducts}`);
+    
+    process.exit(0);
+    
+  } catch (error) {
+    console.error('Seeding failed:', error);
+    
+    if (error.name === 'SequelizeUniqueConstraintError') {
+      console.error('Some products may already exist. Try clearing the database first.');
+    }
+    
+    process.exit(1);
+  }
+};
+
+seedProducts();
