@@ -13,15 +13,9 @@ const fastify = Fastify({
   }
 });
 
-// Register CORS
+// Register CORS (allow all origins)
 await fastify.register(cors, {
-  origin: [
-    'http://localhost:5173',
-    'http://localhost:3000',
-    'http://127.0.0.1:5173',
-    /\.mgx\.dev$/,
-    /\.vercel\.app$/
-  ],
+  origin: true,   // or use '*' if you don’t need credentials
   credentials: true
 });
 
@@ -55,8 +49,7 @@ fastify.get('/', async (request, reply) => {
     version: '1.0.0',
     endpoints: {
       health: '/health',
-      products: '/api/products',
-      languages: '/api/languages'
+      products: '/api/products'
     }
   };
 });
@@ -64,23 +57,18 @@ fastify.get('/', async (request, reply) => {
 // Database connection and server startup
 const start = async () => {
   try {
-    // Test database connection
     await sequelize.authenticate();
     console.log('Database connection established successfully.');
     
-    // Sync models (this will create tables if they don't exist)
-    // Note: This won't affect existing tables like Terms
     await sequelize.sync({ alter: false });
     console.log('Database models synchronized.');
     
-    // Start server
     const port = process.env.PORT || 3001;
     const host = process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost';
     
     await fastify.listen({ port, host });
     console.log(` Server running on http://${host}:${port}`);
     console.log(`API endpoints available at http://${host}:${port}/api/products`);
-    console.log(`Language endpoints available at http://${host}:${port}/api/languages`);
     
   } catch (error) {
     console.error('Failed to start server:', error);
