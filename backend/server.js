@@ -1,3 +1,4 @@
+// server.js
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import dotenv from 'dotenv';
@@ -13,13 +14,29 @@ const fastify = Fastify({
   }
 });
 
-// Register CORS (allow all origins)
+// --------------------
+// CORS Setup
+// --------------------
 await fastify.register(cors, {
-  origin: true,   // or use '*' if you don’t need credentials
-  credentials: true
+  origin: ['https://price-list-module.vercel.app'], // frontend URL
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
 });
 
+// Handle OPTIONS preflight for all routes
+fastify.options('*', async (request, reply) => {
+  reply
+    .header('Access-Control-Allow-Origin', 'https://price-list-module.vercel.app')
+    .header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS')
+    .header('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    .status(204)
+    .send();
+});
+
+// --------------------
 // Register routes
+// --------------------
 await fastify.register(productRoutes, { prefix: '/api' });
 
 // Health check endpoint
@@ -29,7 +46,7 @@ fastify.get('/health', async (request, reply) => {
     return {
       status: 'healthy',
       database: 'connected',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
   } catch (error) {
     reply.status(500);
@@ -37,7 +54,7 @@ fastify.get('/health', async (request, reply) => {
       status: 'unhealthy',
       database: 'disconnected',
       error: error.message,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
   }
 });
@@ -49,34 +66,35 @@ fastify.get('/', async (request, reply) => {
     version: '1.0.0',
     endpoints: {
       health: '/health',
-      products: '/api/products'
-    }
+      products: '/api/products',
+    },
   };
 });
 
-// Database connection and server startup
+// --------------------
+// Start server
+// --------------------
 const start = async () => {
   try {
     await sequelize.authenticate();
     console.log('Database connection established successfully.');
-    
+
     await sequelize.sync({ alter: false });
     console.log('Database models synchronized.');
-    
+
     const port = process.env.PORT || 3001;
     const host = process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost';
-    
+
     await fastify.listen({ port, host });
-    console.log(` Server running on http://${host}:${port}`);
+    console.log(`Server running on http://${host}:${port}`);
     console.log(`API endpoints available at http://${host}:${port}/api/products`);
-    
   } catch (error) {
     console.error('Failed to start server:', error);
     process.exit(1);
   }
 };
 
-// Handle graceful shutdown
+// Graceful shutdown
 process.on('SIGINT', async () => {
   console.log('\nShutting down server...');
   try {
